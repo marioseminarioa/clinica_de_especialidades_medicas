@@ -1,0 +1,90 @@
+<section class="modal-backdrop">
+  <div class="modal">
+    <header class="modal-header">
+      <h3>Registrar bono</h3>
+      <button type="button" class="btn btn-small" (click)="close()">✕</button>
+    </header>
+
+    <!-- Paso 1: búsqueda del empleado por área + número (ambos obligatorios). -->
+    <section class="modal-body">
+      <div class="lookup">
+        <label>
+          Área *
+          <select [(ngModel)]="lDepartment" (ngModelChange)="employee.set(null)">
+            <option value="" disabled>Seleccione…</option>
+            @for (department of departments(); track department.departmentCode) {
+              <option [value]="department.departmentCode">{{ department.departmentName }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Número de empleado *
+          <input type="number" min="1" [(ngModel)]="lEmployeeNumber" />
+        </label>
+        <button type="button" class="btn btn-primary" (click)="findEmployee()">Buscar empleado</button>
+      </div>
+
+      <!-- Paso 2: datos del empleado encontrado. -->
+      @if (employee(); as emp) {
+        <div class="employee-info">
+          <p><strong>{{ emp.fullName }}</strong></p>
+          <p>Fecha de ingreso: {{ emp.hireDate | date: 'dd/MM/yyyy' }}</p>
+          <p>Sueldo mensual: {{ emp.monthlySalary | number: '1.2-2' }}</p>
+          <p>Retención: {{ emp.taxRate }} %</p>
+        </div>
+
+        <!-- Paso 3: formulario del bono. -->
+        <form #form="ngForm">
+          <label>
+            Periodo (YYYY-MM) *
+            <input type="month" name="period" [(ngModel)]="period" required />
+          </label>
+          <label>
+            Tipo de bono *
+            <select name="bonusTypeId" [(ngModel)]="bonusTypeId" required (ngModelChange)="onTypeChange()">
+              <option [ngValue]="null" disabled>Seleccione…</option>
+              @for (type of bonusTypes(); track type.bonusTypeId) {
+                <option [ngValue]="type.bonusTypeId">{{ type.bonusTypeDescription }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <!-- La etiqueta cambia según el tipo: monto fijo o porcentaje. -->
+            {{ bonusTypeId === bonusTypesEnum.SalaryPercentage ? 'Porcentaje del sueldo *' : 'Monto *' }}
+            <input
+              type="number" min="0" step="0.01" name="value"
+              [(ngModel)]="value" required [disabled]="bonusTypeId == null" />
+          </label>
+          <label>
+            Motivo *
+            <select name="reasonCode" [(ngModel)]="reasonCode" required>
+              <option value="" disabled>Seleccione…</option>
+              @for (reason of reasons(); track reason.reasonCode) {
+                <option [value]="reason.reasonCode">{{ reason.reasonDescription }}</option>
+              }
+            </select>
+          </label>
+        </form>
+
+        <!-- Paso 4: vista previa del cálculo mientras el usuario escribe. -->
+        @if (preview(); as calc) {
+          <div class="preview">
+            <p>Bruto: <strong>{{ calc.gross | number: '1.2-2' }}</strong></p>
+            <p>Retención ({{ emp.taxRate }} %): {{ calc.tax | number: '1.2-2' }}</p>
+            <p>Neto a pagar: <strong>{{ calc.net | number: '1.2-2' }}</strong></p>
+          </div>
+        }
+
+        <!-- Validación simple en el front (el backend revalida todo). -->
+        @if (validationError()) {
+          <p class="form-error">{{ validationError() }}</p>
+        }
+      }
+    </section>
+
+    <footer class="modal-footer">
+      <button type="button" class="btn" (click)="close()">Cancelar</button>
+      <button type="button" class="btn btn-primary" (click)="save()">Guardar</button>
+    </footer>
+  </div>
+</section>

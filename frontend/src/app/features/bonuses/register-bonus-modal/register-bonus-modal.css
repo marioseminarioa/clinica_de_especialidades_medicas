@@ -1,0 +1,91 @@
+/* Estilos del modal de registro de bonos. */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal {
+  background: var(--surface, #fff);
+  color: inherit;
+  border-radius: 8px;
+  width: min(560px, 92vw);
+  max-height: 92vh;
+  overflow: auto;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border, #e2e2e2);
+}
+.modal-header h3 {
+  margin: 0;
+}
+.modal-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border, #e2e2e2);
+}
+.lookup {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.lookup label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.lookup label select,
+.lookup label input {
+  min-width: 140px;
+}
+.employee-info {
+  background: var(--bg-soft, #f5f7fa);
+  border-radius: 6px;
+  padding: 12px;
+}
+.employee-info p {
+  margin: 2px 0;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.preview {
+  background: var(--bg-soft, #f5f7fa);
+  border-radius: 6px;
+  padding: 12px;
+}
+.preview p {
+  margin: 2px 0;
+}
+.form-error {
+  color: #c0392b;
+  margin: 0;
+}

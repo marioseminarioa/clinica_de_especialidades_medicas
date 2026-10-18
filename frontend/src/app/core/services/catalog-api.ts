@@ -25,3 +25,4 @@ export class CatalogApi {
     return this.http.get<BonusReason[]>(`${this.baseUrl}/bonus-reasons`);
   }
 }
+

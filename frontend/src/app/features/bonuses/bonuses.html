@@ -1,33 +1,106 @@
 <section class="card">
   <header class="card-header">
     <h2>Bonos de desempeño</h2>
-    <button type="button" class="btn btn-primary" disabled>Nuevo registro</button>
+    <button type="button" class="btn btn-primary" (click)="openModal()">Nuevo registro</button>
   </header>
 
+  <!-- Filtros opcionales; se aplican solo con Buscar/Limpiar. -->
   <div class="filters">
     <label>
       Área
-      <select>
+      <select [(ngModel)]="fDepartment">
         <option value="">Todas</option>
         @for (department of departments(); track department.departmentCode) {
           <option [value]="department.departmentCode">{{ department.departmentName }}</option>
         }
       </select>
     </label>
-
+    <label>
+      Número de empleado
+      <input type="number" min="1" [(ngModel)]="fEmployeeNumber" placeholder="Ej. 101" />
+    </label>
+    <label>
+      Periodo (YYYY-MM)
+      <input type="month" [(ngModel)]="fPeriod" />
+    </label>
     <label>
       Estado
-      <select>
+      <select [(ngModel)]="fState">
         <option value="">Todos</option>
         @for (state of bonusStates(); track state.stateCode) {
           <option [value]="state.stateCode">{{ state.stateDescription }}</option>
         }
       </select>
     </label>
+    <div class="filters-actions">
+      <button type="button" class="btn btn-primary" (click)="search(1)">Buscar</button>
+      <button type="button" class="btn" (click)="clear()">Limpiar</button>
+    </div>
   </div>
 
-  <p class="placeholder">
-    Los combos ya consumen <code>GET /api/v1/Catalog</code>. Implementa aquí el listado paginado,
-    las acciones por fila y el modal de registro descritos en el enunciado.
-  </p>
+  <!-- Listado paginado desde el servidor. -->
+  @if (result(); as page) {
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Acciones</th>
+          <th>Estado</th>
+          <th>Periodo</th>
+          <th>Área / N°</th>
+          <th>Empleado</th>
+          <th>Tipo</th>
+          <th>Monto / %</th>
+          <th>Motivo</th>
+          <th class="num">Bruto</th>
+          <th class="num">Retención</th>
+          <th class="num">Neto</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of page.data; track row.bonusId) {
+          <tr [class.row-cancelled]="row.bonusStateCode === '0203'">
+            <td>
+              @if (canAct(row)) {
+                <button type="button" class="btn btn-small" (click)="cancel(row)">Anular</button>
+                <button type="button" class="btn btn-small btn-danger" (click)="remove(row)">Eliminar</button>
+              } @else {
+                <span class="muted">—</span>
+              }
+            </td>
+            <td><span class="badge" [class.badge-cancelled]="row.bonusStateCode === '0203'">{{ row.bonusStateDescription }}</span></td>
+            <td>{{ row.period }}</td>
+            <td>{{ row.departmentCode }}-{{ row.employeeNumber }}</td>
+            <td>{{ row.employeeFullName }}</td>
+            <td>{{ row.bonusTypeDescription }}</td>
+            <td>
+              @if (row.amountPercentage != null) {
+                {{ row.amountPercentage }} %
+              } @else {
+                {{ row.amount | number: '1.2-2' }}
+              }
+            </td>
+            <td>{{ row.reasonDescription }}</td>
+            <td class="num">{{ row.grossAmount | number: '1.2-2' }}</td>
+            <td class="num">{{ row.taxAmount | number: '1.2-2' }}</td>
+            <td class="num"><strong>{{ row.netAmount | number: '1.2-2' }}</strong></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <!-- Paginación: cada cambio llama de nuevo a la API. -->
+    <footer class="pager">
+      <span>Total de registros: {{ page.totalRecords }}</span>
+      <span>Página {{ page.pageNumber }} de {{ page.totalPages }}</span>
+      <button type="button" class="btn btn-small" [disabled]="page.pageNumber <= 1" (click)="prev()">Anterior</button>
+      <button type="button" class="btn btn-small" [disabled]="page.pageNumber >= page.totalPages" (click)="next()">Siguiente</button>
+    </footer>
+  } @else {
+    <p class="placeholder">Sin resultados. Usa los filtros y pulsa Buscar.</p>
+  }
 </section>
+
+<!-- Modal de registro: al guardar, refresca el listado. -->
+@if (modalOpen()) {
+  <app-register-bonus-modal (closed)="closeModal()" (saved)="onSaved()" />
+}
