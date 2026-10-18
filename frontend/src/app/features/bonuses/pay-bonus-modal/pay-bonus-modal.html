@@ -1,0 +1,59 @@
+<!-- Modal de pago: distribuye el neto del bono entre proyectos. -->
+<div class="overlay" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <header class="modal-header">
+      <h3>Pagar bono</h3>
+      <button type="button" class="btn btn-small" (click)="close()">✕</button>
+    </header>
+
+    <p class="modal-info">
+      {{ bonus().employeeFullName }} ({{ bonus().departmentCode }}-{{ bonus().employeeNumber }}) —
+      Periodo {{ bonus().period }} · Neto a pagar:
+      <strong>{{ bonus().netAmount | number: '1.2-2' }}</strong>
+    </p>
+
+    <!-- Distribución por proyectos. -->
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Proyecto</th>
+          <th class="num">Horas</th>
+          <th class="num">Monto</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (d of details(); track $index) {
+          <tr>
+            <td><input type="text" [(ngModel)]="d.projectName" placeholder="Nombre del proyecto" /></td>
+            <td class="num"><input class="num-input" type="number" min="0.01" step="0.01" [(ngModel)]="d.hours" /></td>
+            <td class="num"><input class="num-input" type="number" min="0.01" step="0.01" [(ngModel)]="d.amount" /></td>
+            <td>
+              @if (details().length > 1) {
+                <button type="button" class="btn btn-small btn-danger" (click)="removeRow($index)">Quitar</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <!-- Control de la suma vs el neto. -->
+    <div class="totals">
+      <span>Asignado: {{ total() | number: '1.2-2' }}</span>
+      <span>Neto: {{ bonus().netAmount | number: '1.2-2' }}</span>
+      <span [class.diff-bad]="difference() !== 0">Diferencia: {{ difference() | number: '1.2-2' }}</span>
+    </div>
+
+    <button type="button" class="btn" (click)="addRow()">+ Agregar proyecto</button>
+
+    @if (validationError()) {
+      <p class="error">{{ validationError() }}</p>
+    }
+
+    <footer class="modal-footer">
+      <button type="button" class="btn" (click)="close()">Cancelar</button>
+      <button type="button" class="btn btn-primary" (click)="pay()">Registrar pago</button>
+    </footer>
+  </div>
+</div>

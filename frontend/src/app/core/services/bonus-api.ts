@@ -3,7 +3,15 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PagedResponse } from '../models/paged-response';
-import { BonusListItem, BonusSearchFilters, EmployeeLookup, RegisterBonus } from '../models/bonus';
+import {
+  BonusListItem,
+  BonusSearchFilters,
+  EmployeeLookup,
+  RegisterBonus,
+  PayBonusRequest,
+  PayBonusResult,
+  BonusPaymentDetail,
+} from '../models/bonus';
 
 /**
  * Cliente HTTP del módulo de bonos.
@@ -16,7 +24,11 @@ export class BonusApi {
   private readonly baseUrl = `${environment.apiUrl}/Bonus`;
 
   /** Listado paginado desde el servidor con filtros opcionales. */
-  search(pageIndex: number, pageSize: number, filters: BonusSearchFilters): Observable<PagedResponse<BonusListItem>> {
+  search(
+    pageIndex: number,
+    pageSize: number,
+    filters: BonusSearchFilters,
+  ): Observable<PagedResponse<BonusListItem>> {
     // Solo se envían los filtros que tienen valor.
     let params = new HttpParams().set('pageIndex', pageIndex).set('pageSize', pageSize);
     if (filters.departmentCode) params = params.set('departmentCode', filters.departmentCode);
@@ -28,7 +40,9 @@ export class BonusApi {
 
   /** Búsqueda del empleado por área + número (solo activos). */
   getEmployee(departmentCode: string, employeeNumber: number): Observable<EmployeeLookup> {
-    return this.http.get<EmployeeLookup>(`${this.baseUrl}/employee/${departmentCode}/${employeeNumber}`);
+    return this.http.get<EmployeeLookup>(
+      `${this.baseUrl}/employee/${departmentCode}/${employeeNumber}`,
+    );
   }
 
   /** Registra un bono y devuelve la fila creada. */
@@ -44,5 +58,15 @@ export class BonusApi {
   /** Elimina de forma lógica un bono en estado Registrado. */
   remove(bonusId: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${bonusId}`);
+  }
+
+  /** Punto extra 1: registra el pago con distribución por proyectos. */
+  pay(bonusId: number, request: PayBonusRequest): Observable<PayBonusResult> {
+    return this.http.post<PayBonusResult>(`${this.baseUrl}/${bonusId}/pay`, request);
+  }
+
+  /** Punto extra 1: distribución por proyectos con la que fue pagado un bono. */
+  getPayments(bonusId: number): Observable<BonusPaymentDetail[]> {
+    return this.http.get<BonusPaymentDetail[]>(`${this.baseUrl}/${bonusId}/payments`);
   }
 }

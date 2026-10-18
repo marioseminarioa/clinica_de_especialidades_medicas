@@ -62,6 +62,7 @@
             <td>
               @if (canAct(row)) {
                 <button type="button" class="btn btn-small" (click)="cancel(row)">Anular</button>
+                <button type="button" class="btn btn-small" (click)="openPay(row)">Pagar</button>
                 <button type="button" class="btn btn-small btn-danger" (click)="remove(row)">Eliminar</button>
               } @else {
                 <span class="muted">—</span>
@@ -103,4 +104,9 @@
 <!-- Modal de registro: al guardar, refresca el listado. -->
 @if (modalOpen()) {
   <app-register-bonus-modal (closed)="closeModal()" (saved)="onSaved()" />
+}
+
+<!-- Punto extra 1: modal de pago con distribución por proyectos. -->
+@if (payTarget(); as target) {
+  <app-pay-bonus-modal [bonus]="target" (closed)="payTarget.set(null)" (paid)="onPaid()" />
 }

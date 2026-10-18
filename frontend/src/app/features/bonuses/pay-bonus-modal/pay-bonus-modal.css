@@ -1,0 +1,61 @@
+/* Reutiliza la estructura del modal de registro (overlay + card centrado). */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+}
+
+.modal {
+  background: var(--surface, #fff);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  width: min(640px, 92vw);
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.modal-info {
+  color: #555;
+  margin: 0 0 1rem;
+}
+
+/* Inputs numéricos compactos dentro de la tabla de distribución. */
+.num-input {
+  width: 90px;
+}
+
+.totals {
+  display: flex;
+  gap: 1.5rem;
+  margin: 0.75rem 0;
+  font-size: 0.95rem;
+}
+
+/* La diferencia en rojo cuando no cuadra con el neto. */
+.diff-bad {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+.error {
+  color: #c0392b;
+  margin: 0.5rem 0;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}

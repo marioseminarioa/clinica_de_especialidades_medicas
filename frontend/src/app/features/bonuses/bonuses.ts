@@ -9,6 +9,7 @@ import { BonusApi } from '../../core/services/bonus-api';
 import { CatalogApi } from '../../core/services/catalog-api';
 import { Notification } from '../../core/services/notification';
 import { RegisterBonusModal } from './register-bonus-modal/register-bonus-modal';
+import { PayBonusModal } from './pay-bonus-modal/pay-bonus-modal';
 
 /**
  * Pantalla de bonos de desempeño: filtros, listado paginado desde el servidor,
@@ -17,7 +18,7 @@ import { RegisterBonusModal } from './register-bonus-modal/register-bonus-modal'
  */
 @Component({
   selector: 'app-bonuses',
-  imports: [FormsModule, DecimalPipe, RegisterBonusModal],
+  imports: [FormsModule, DecimalPipe, RegisterBonusModal, PayBonusModal],
   templateUrl: './bonuses.html',
   styleUrl: './bonuses.css',
 })
@@ -45,6 +46,9 @@ export class Bonuses {
 
   // Visibilidad del modal de registro.
   protected readonly modalOpen = signal(false);
+
+  // Punto extra 1: bono seleccionado para pagar; null = modal cerrado.
+  protected readonly payTarget = signal<BonusListItem | null>(null);
 
   // Las acciones (anular/eliminar) solo se permiten en estado Registrado (0201).
   protected canAct(row: BonusListItem): boolean {
@@ -121,6 +125,17 @@ export class Bonuses {
 
   protected openModal(): void {
     this.modalOpen.set(true);
+  }
+
+  /** Punto extra 1: abre el modal de pago con la fila seleccionada. */
+  protected openPay(row: BonusListItem): void {
+    this.payTarget.set(row);
+  }
+
+  /** El modal de pago avisa que pagó: cierra y refresca el listado. */
+  protected onPaid(): void {
+    this.payTarget.set(null);
+    this.search(this.pageIndex());
   }
 
   protected closeModal(): void {
