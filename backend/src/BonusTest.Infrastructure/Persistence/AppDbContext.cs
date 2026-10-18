@@ -12,7 +12,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<BonusType> BonusTypes => Set<BonusType>();
     public DbSet<BonusReason> BonusReasons => Set<BonusReason>();
 
-    // agrega aquí el DbSet de Bonus y su configuración.
+    // DbSet del módulo de bonos (creado por el script 02_bonus_schema.sql).
+    public DbSet<Bonus> Bonuses => Set<Bonus>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

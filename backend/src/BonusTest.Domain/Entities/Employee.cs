@@ -10,6 +10,8 @@ public class Employee
     /// <summary>Porcentaje de retención que se aplica a sus bonos (0, 8 o 10).</summary>
     public decimal TaxRate { get; set; }
     public string EmployeeStateCode { get; set; } = null!;
-
     public List<EmployeeProjectHours> ProjectHours { get; set; } = [];
+
+    // Navegación al área (usada para mostrar el nombre del área en las proyecciones).
+    public Department Department { get; set; } = null!;
 }
