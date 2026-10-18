@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using BonusTest.Application.Bonuses;
 using BonusTest.Application.Catalogs;
 
 namespace BonusTest.Application;
@@ -9,7 +10,8 @@ public static class DependencyInjection
     {
         services.AddScoped<CatalogService>();
 
-        // registra aquí los servicios del módulo de bonos.
+        // Servicio del módulo de bonos (contiene las reglas de negocio).
+        services.AddScoped<Bonuses.BonusService>();
 
         return services;
     }
