@@ -26,4 +26,10 @@ public interface IBonusRepository
 
     /// <summary>Guarda cambios de estado / baja lógica sobre el bono.</summary>
     Task UpdateAsync(Domain.Entities.Bonus bonus, CancellationToken cancellationToken);
+
+    /// <summary>Carga la entidad de bono por id (incluye al empleado). Null si no existe o está eliminado.</summary>
+    Task<Domain.Entities.Bonus?> GetEntityAsync(int bonusId, CancellationToken cancellationToken);
+
+    /// <summary>Indica si el motivo existe y está activo (regla: solo motivos activos).</summary>
+    Task<bool> ReasonExistsActiveAsync(string reasonCode, CancellationToken cancellationToken);
 }

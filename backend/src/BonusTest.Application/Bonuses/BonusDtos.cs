@@ -1,3 +1,5 @@
+using BonusTest.Application.Common;
+
 namespace BonusTest.Application.Bonuses;
 
 /// <summary>Filtros + paginación para el listado de bonos. Todos los filtros son opcionales.</summary>
@@ -44,7 +46,9 @@ public record EmployeeLookupDto(
     string FullName,
     DateTime HireDate,
     decimal MonthlySalary,
-    decimal TaxRate
+    decimal TaxRate,
+    /// <summary>0101 = Activo, 0102 = Cesado. El servicio valida que sea Activo.</summary>
+    string EmployeeStateCode
 );
 
 /// <summary>Datos que ingresa el usuario para registrar un bono.</summary>
