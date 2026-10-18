@@ -52,6 +52,10 @@ public record EmployeeLookupDto(
 );
 
 /// <summary>Datos que ingresa el usuario para registrar un bono.</summary>
+/// <remarks>
+/// El UserCode NO se recibe en el JSON: lo agrega el controlador desde el header UserCode,
+/// para que el cliente nunca pueda suplantar el usuario que audita el registro.
+/// </remarks>
 public record RegisterBonusRequest(
     string DepartmentCode,
     int EmployeeNumber,
@@ -60,5 +64,5 @@ public record RegisterBonusRequest(
     decimal? Amount,
     decimal? AmountPercentage,
     string ReasonCode,
-    string UserCode
+    string? UserCode = null
 );

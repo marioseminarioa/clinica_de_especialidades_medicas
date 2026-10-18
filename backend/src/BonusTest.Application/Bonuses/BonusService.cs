@@ -15,15 +15,11 @@ public class BonusService(IBonusRepository repository)
         repository.SearchAsync(request, cancellationToken);
 
     /// <summary>
-    /// Búsqueda del empleado por área + número.
-    /// Regla: solo se aceptan empleados Activos (0101); un Cesado devuelve error de validación.
+    /// Búsqueda del empleado por área + número (la regla de estado activo ya se
+    /// aplica en <see cref="GetEmployeeActiveAsync"/>, que también usa el registro).
     /// </summary>
-    public async Task<EmployeeLookupDto> GetEmployeeAsync(string departmentCode, int employeeNumber, CancellationToken cancellationToken)
-    {
-        // El empleado debe existir con esa clave compuesta (área + número).
-        return await repository.GetEmployeeAsync(departmentCode, employeeNumber, cancellationToken)
-            ?? throw new BusinessException("EMPLOYEE_NOT_FOUND", "No existe un empleado con el área y número indicados.");
-    }
+    public async Task<EmployeeLookupDto> GetEmployeeAsync(string departmentCode, int employeeNumber, CancellationToken cancellationToken) =>
+        await GetEmployeeActiveAsync(departmentCode, employeeNumber, cancellationToken);
 
     /// <summary>Registra un bono aplicando todas las validaciones de las reglas de negocio.</summary>
     public async Task<BonusListItemDto> RegisterAsync(RegisterBonusRequest request, CancellationToken cancellationToken)
@@ -63,7 +59,8 @@ public class BonusService(IBonusRepository repository)
             BonusStateCode = BonusStates.Registered,
             ReasonCode = request.ReasonCode,
             IsDeleted = false,
-            CreatedBy = request.UserCode,
+            // Auditoría: el UserCode siempre viene del header (lo colocó el controlador), nunca del JSON.
+            CreatedBy = request.UserCode!,
             CreatedAt = DateTime.UtcNow,
         };
 
@@ -108,6 +105,7 @@ public class BonusService(IBonusRepository repository)
             ?? throw new BusinessException("BONUS_NOT_FOUND", "El bono no existe o ya fue eliminado.");
 
     /// <summary>Carga el empleado y valida que esté Activo (0101); un Cesado devuelve error de validación.</summary>
+    /// <remarks>Reutiliza la búsqueda del empleado que usa el modal; así las reglas de estado se aplican en un solo lugar.</remarks>
     private async Task<EmployeeLookupDto> GetEmployeeActiveAsync(string departmentCode, int employeeNumber, CancellationToken cancellationToken)
     {
         var employee = await repository.GetEmployeeAsync(departmentCode, employeeNumber, cancellationToken)

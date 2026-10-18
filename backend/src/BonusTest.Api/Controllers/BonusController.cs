@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using BonusTest.Domain.Exceptions;
 using BonusTest.Application.Bonuses;
 using BonusTest.Application.Common;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -36,7 +37,12 @@ public class BonusController(BonusService bonusService) : ControllerBase
         [FromHeader(Name = "UserCode")] string? userCode,
         CancellationToken cancellationToken)
     {
-        var created = await bonusService.RegisterAsync(request with { UserCode = userCode! }, cancellationToken);
+        // Si el header UserCode no viene, es una petición mal formada: se devuelve 409 con código claro
+        // en lugar de un 400 genérico de model binding.
+        if (string.IsNullOrWhiteSpace(userCode))
+            throw new BusinessException("MISSING_USER_CODE", "El header UserCode es obligatorio.");
+
+        var created = await bonusService.RegisterAsync(request with { UserCode = userCode }, cancellationToken);
         // 201 con la ubicación del recurso creado.
         return CreatedAtAction(nameof(GetList), new { bonusId = created.BonusId }, created);
     }
@@ -48,7 +54,13 @@ public class BonusController(BonusService bonusService) : ControllerBase
         int bonusId,
         [FromHeader(Name = "UserCode")] string? userCode,
         CancellationToken cancellationToken)
-        => Ok(await bonusService.CancelAsync(bonusId, userCode, cancellationToken));
+    {
+        // El header UserCode es obligatorio para la auditoría de modificación.
+        if (string.IsNullOrWhiteSpace(userCode))
+            throw new BusinessException("MISSING_USER_CODE", "El header UserCode es obligatorio.");
+
+        return Ok(await bonusService.CancelAsync(bonusId, userCode, cancellationToken));
+    }
 
     /// <summary>Elimina de forma lógica (baja lógica). Solo permitido desde el estado Registrado (0201).</summary>
     /// <param name="userCode">Usuario que opera, enviado en el header UserCode.</param>
@@ -58,6 +70,10 @@ public class BonusController(BonusService bonusService) : ControllerBase
         [FromHeader(Name = "UserCode")] string? userCode,
         CancellationToken cancellationToken)
     {
+        // El header UserCode es obligatorio para la auditoría de modificación.
+        if (string.IsNullOrWhiteSpace(userCode))
+            throw new BusinessException("MISSING_USER_CODE", "El header UserCode es obligatorio.");
+
         await bonusService.DeleteAsync(bonusId, userCode, cancellationToken);
         return NoContent();
     }
