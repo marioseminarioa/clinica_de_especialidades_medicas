@@ -25,12 +25,26 @@
       <tbody>
         @for (d of details(); track $index) {
           <tr>
-            <td><input type="text" [(ngModel)]="d.projectName" placeholder="Nombre del proyecto" /></td>
-            <td class="num"><input class="num-input" type="number" min="0.01" step="0.01" [(ngModel)]="d.hours" /></td>
-            <td class="num"><input class="num-input" type="number" min="0.01" step="0.01" [(ngModel)]="d.amount" /></td>
+            <td>
+              <input type="text" [(ngModel)]="d.projectName" placeholder="Nombre del proyecto" />
+            </td>
+            <td class="num">
+              <input class="num-input" type="number" min="0.01" step="0.01" [(ngModel)]="d.hours" />
+            </td>
+            <td class="num">
+              <input
+                class="num-input"
+                type="number"
+                min="0.01"
+                step="0.01"
+                [(ngModel)]="d.amount"
+              />
+            </td>
             <td>
               @if (details().length > 1) {
-                <button type="button" class="btn btn-small btn-danger" (click)="removeRow($index)">Quitar</button>
+                <button type="button" class="btn btn-small btn-danger" (click)="removeRow($index)">
+                  Quitar
+                </button>
               }
             </td>
           </tr>
@@ -42,7 +56,9 @@
     <div class="totals">
       <span>Asignado: {{ total() | number: '1.2-2' }}</span>
       <span>Neto: {{ bonus().netAmount | number: '1.2-2' }}</span>
-      <span [class.diff-bad]="difference() !== 0">Diferencia: {{ difference() | number: '1.2-2' }}</span>
+      <span [class.diff-bad]="difference() !== 0"
+        >Diferencia: {{ difference() | number: '1.2-2' }}</span
+      >
     </div>
 
     <button type="button" class="btn" (click)="addRow()">+ Agregar proyecto</button>
