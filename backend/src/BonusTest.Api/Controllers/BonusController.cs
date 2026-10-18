@@ -77,4 +77,30 @@ public class BonusController(BonusService bonusService) : ControllerBase
         await bonusService.DeleteAsync(bonusId, userCode, cancellationToken);
         return NoContent();
     }
+
+    /// <summary>
+    /// Punto extra 1: registra el pago de un bono con distribución por proyectos.
+    /// La suma de los montos debe ser exactamente igual al neto del bono.
+    /// </summary>
+    /// <param name="userCode">Usuario que opera, enviado en el header UserCode.</param>
+    [HttpPost("{bonusId:int}/pay")]
+    public async Task<ActionResult<PayBonusResultDto>> Pay(
+        int bonusId,
+        [FromBody] PayBonusRequest request,
+        [FromHeader(Name = "UserCode")] string? userCode,
+        CancellationToken cancellationToken)
+    {
+        // El header UserCode es obligatorio para la auditoría del pago.
+        if (string.IsNullOrWhiteSpace(userCode))
+            throw new BusinessException("MISSING_USER_CODE", "El header UserCode es obligatorio.");
+
+        // El id viene en la ruta; se fuerza en el cuerpo para evitar inconsistencias.
+        return Ok(await bonusService.PayAsync(request with { BonusId = bonusId, UserCode = userCode }, cancellationToken));
+    }
+
+    /// <summary>Devuelve la distribución por proyectos con la que fue pagado un bono (punto extra 1).</summary>
+    [HttpGet("{bonusId:int}/payments")]
+    public async Task<ActionResult<IReadOnlyList<BonusPaymentDetailDto>>> GetPayments(
+        int bonusId, CancellationToken cancellationToken)
+        => Ok(await bonusService.GetPaymentDetailsAsync(bonusId, cancellationToken));
 }

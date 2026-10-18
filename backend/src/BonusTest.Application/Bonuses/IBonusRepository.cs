@@ -32,4 +32,13 @@ public interface IBonusRepository
 
     /// <summary>Indica si el motivo existe y está activo (regla: solo motivos activos).</summary>
     Task<bool> ReasonExistsActiveAsync(string reasonCode, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Marca el bono como Pagado, guarda la auditoría y persiste la distribución
+    /// por proyectos (punto extra 1) en una sola transacción.
+    /// </summary>
+    Task MarkPaidAsync(Domain.Entities.Bonus bonus, IReadOnlyList<Domain.Entities.BonusPaymentDetail> details, CancellationToken cancellationToken);
+
+    /// <summary>Devuelve la distribución por proyectos guardada de un bono.</summary>
+    Task<IReadOnlyList<Domain.Entities.BonusPaymentDetail>> GetPaymentDetailsAsync(int bonusId, CancellationToken cancellationToken);
 }

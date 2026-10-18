@@ -134,4 +134,22 @@ public class BonusRepository(AppDbContext context) : IBonusRepository
     public async Task<bool> ReasonExistsActiveAsync(string reasonCode, CancellationToken cancellationToken) =>
         await context.BonusReasons.AsNoTracking()
             .AnyAsync(r => r.ReasonCode == reasonCode && r.State, cancellationToken);
+
+    /// <summary>
+    /// Punto extra 1: marca el bono como Pagado y guarda la distribución por proyectos
+    /// en una sola transacción (una llamada a SaveChanges cubre ambos cambios).
+    /// </summary>
+    public async Task MarkPaidAsync(Bonus bonus, IReadOnlyList<BonusPaymentDetail> details, CancellationToken cancellationToken)
+    {
+        context.Bonuses.Update(bonus);          // estado 0201 → 0202 + auditoría
+        context.BonusPaymentDetails.AddRange(details); // líneas de distribución
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>Distribución por proyectos guardada de un bono, ordenada por id.</summary>
+    public async Task<IReadOnlyList<BonusPaymentDetail>> GetPaymentDetailsAsync(int bonusId, CancellationToken cancellationToken) =>
+        await context.BonusPaymentDetails.AsNoTracking()
+            .Where(d => d.BonusId == bonusId)
+            .OrderBy(d => d.BonusPaymentDetailId)
+            .ToListAsync(cancellationToken);
 }

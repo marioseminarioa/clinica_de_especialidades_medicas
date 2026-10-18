@@ -69,6 +69,74 @@ public class BonusService(IBonusRepository repository)
         return (await repository.GetByIdAsync(bonusId, cancellationToken))!;
     }
 
+    /// <summary>
+    /// Punto extra 1: registra el pago de un bono con distribución por proyectos.
+    /// Reglas:
+    ///   - Solo un bono en estado Registrado (0201) puede pasar a Pagado (0202).
+    ///   - La distribución requiere al menos un proyecto.
+    ///   - Cada línea debe tener nombre, horas > 0 y monto > 0.
+    ///   - La suma de los montos debe ser exactamente igual al neto del bono.
+    ///   - El estado pasa a Pagado y la distribución queda persistida.
+    /// </summary>
+    public async Task<PayBonusResultDto> PayAsync(PayBonusRequest request, CancellationToken cancellationToken)
+    {
+        // El bono debe existir y no estar eliminado lógicamente.
+        var bonus = await GetActiveBonusAsync(request.BonusId, cancellationToken);
+
+        // Solo un bono en estado Registrado puede pasar a Pagado.
+        if (bonus.BonusStateCode != BonusStates.Registered)
+            throw new BusinessException("INVALID_STATE", "Solo un bono en estado Registrado puede ser pagado.");
+
+        // Debe existir al menos una línea de distribución por proyecto.
+        if (request.Details is null || request.Details.Count == 0)
+            throw new BusinessException("EMPTY_DETAILS", "El pago requiere al menos un proyecto con horas y monto.");
+
+        // Cada línea debe ser válida: nombre, horas positivas y monto positivo.
+        foreach (var detail in request.Details)
+        {
+            if (string.IsNullOrWhiteSpace(detail.ProjectName))
+                throw new BusinessException("INVALID_PROJECT", "El nombre del proyecto es obligatorio.");
+            if (detail.Hours <= 0)
+                throw new BusinessException("INVALID_HOURS", $"Las horas del proyecto '{detail.ProjectName}' deben ser mayores a 0.");
+            if (detail.Amount <= 0)
+                throw new BusinessException("INVALID_AMOUNT", $"El monto del proyecto '{detail.ProjectName}' debe ser mayor a 0.");
+        }
+
+        // La suma de los montos debe ser exactamente igual al neto del bono.
+        var total = request.Details.Sum(d => d.Amount);
+        if (total != bonus.NetAmount)
+            throw new BusinessException("AMOUNT_MISMATCH", $"La suma de los montos ({total}) debe ser exactamente igual al neto del bono ({bonus.NetAmount}).");
+
+        // Se marcan el estado, la auditoría y se guardan las líneas en una transacción.
+        bonus.BonusStateCode = BonusStates.Paid;
+        TouchAudit(bonus, request.UserCode!);
+        var details = request.Details
+            .Select(d => new Domain.Entities.BonusPaymentDetail
+            {
+                BonusId = bonus.BonusId,
+                ProjectName = d.ProjectName.Trim(),
+                Hours = d.Hours,
+                AllocatedAmount = d.Amount,
+            })
+            .ToList();
+
+        await repository.MarkPaidAsync(bonus, details, cancellationToken);
+
+        // Se recupera la distribución guardada para devolverla al cliente.
+        var saved = await repository.GetPaymentDetailsAsync(bonus.BonusId, cancellationToken);
+        return new PayBonusResultDto(
+            (await repository.GetByIdAsync(bonus.BonusId, cancellationToken))!,
+            saved.Select(d => new BonusPaymentDetailDto(d.BonusPaymentDetailId, d.ProjectName, d.Hours, d.AllocatedAmount)).ToList()
+        );
+    }
+
+    /// <summary>Devuelve la distribución por proyectos con la que fue pagado un bono (punto extra 1).</summary>
+    public async Task<IReadOnlyList<BonusPaymentDetailDto>> GetPaymentDetailsAsync(int bonusId, CancellationToken cancellationToken)
+    {
+        var details = await repository.GetPaymentDetailsAsync(bonusId, cancellationToken);
+        return details.Select(d => new BonusPaymentDetailDto(d.BonusPaymentDetailId, d.ProjectName, d.Hours, d.AllocatedAmount)).ToList();
+    }
+
     /// <summary>Anula un bono. Regla: solo en estado Registrado (0201) se puede anular → 0203.</summary>
     public async Task<BonusListItemDto> CancelAsync(int bonusId, string userCode, CancellationToken cancellationToken)
     {

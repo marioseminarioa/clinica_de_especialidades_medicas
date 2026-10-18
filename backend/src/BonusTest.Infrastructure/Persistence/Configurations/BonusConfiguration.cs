@@ -62,3 +62,33 @@ public class BonusConfiguration : IEntityTypeConfiguration<Bonus>
         builder.HasIndex(x => x.IsDeleted).HasDatabaseName("IX_Bonus_IsDeleted");
     }
 }
+
+/// <summary>
+/// Mapeo del detalle de pago por proyecto (punto extra 1), tabla BonusPaymentDetail
+/// del script 02_bonus_schema.sql.
+/// </summary>
+public class BonusPaymentDetailConfiguration : IEntityTypeConfiguration<BonusPaymentDetail>
+{
+    public void Configure(EntityTypeBuilder<BonusPaymentDetail> builder)
+    {
+        builder.ToTable("BonusPaymentDetail").HasKey(x => x.BonusPaymentDetailId);
+
+        builder.Property(x => x.BonusPaymentDetailId).ValueGeneratedOnAdd();
+
+        // Nombre del proyecto: texto obligatorio de hasta 100 caracteres.
+        builder.Property(x => x.ProjectName).HasMaxLength(100).IsRequired();
+
+        // Horas y monto con las mismas precisiones que en SQL Server.
+        builder.Property(x => x.Hours).HasPrecision(8, 2);
+        builder.Property(x => x.AllocatedAmount).HasPrecision(16, 2);
+
+        // Cada línea pertenece a un bono; al borrar el bono se borran sus líneas.
+        builder.HasOne(x => x.Bonus)
+            .WithMany()
+            .HasForeignKey(x => x.BonusId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Índice para recuperar la distribución de un bono.
+        builder.HasIndex(x => x.BonusId).HasDatabaseName("IX_BonusPaymentDetail_Bonus");
+    }
+}

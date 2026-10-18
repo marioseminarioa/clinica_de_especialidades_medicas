@@ -15,6 +15,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     // DbSet del módulo de bonos (creado por el script 02_bonus_schema.sql).
     public DbSet<Bonus> Bonuses => Set<Bonus>();
 
+    // Detalle de pago por proyecto de un bono pagado (punto extra 1).
+    public DbSet<BonusPaymentDetail> BonusPaymentDetails => Set<BonusPaymentDetail>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
