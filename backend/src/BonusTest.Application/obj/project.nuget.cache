@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "KUKEKn0GMIg=",
+  "success": true,
+  "projectFilePath": "/home/mario/Documentos/Clínica de Especialidades Médicas/backend/src/BonusTest.Application/BonusTest.Application.csproj",
+  "expectedPackageFiles": [
+    "/home/mario/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.13/microsoft.extensions.dependencyinjection.abstractions.10.0.13.nupkg.sha512"
+  ],
+  "logs": []
+}
