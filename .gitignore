@@ -1,0 +1,13 @@
+# Node
+node_modules/
+frontend/.angular/
+
+# .NET
+bin/
+obj/
+*.user
+
+# IDE / sistema
+.vs/
+.vscode/
+.DS_Store
