@@ -1,5 +1,6 @@
 import { Component, computed, inject, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BonusTypes } from '../../../core/models/catalog';
@@ -51,6 +52,10 @@ export class RegisterBonusModal {
   // Mensaje de validación local (el backend revalida todo igual).
   protected readonly validationError = signal('');
 
+  // Error de la búsqueda del empleado, mostrado dentro del modal
+  // (viene del backend como 409 { code, description }).
+  protected readonly lookupError = signal('');
+
   /**
    * Vista previa del cálculo mientras el usuario escribe.
    * Reproduce las reglas del backend: bruto (monto fijo o sueldo × %/100),
@@ -72,13 +77,21 @@ export class RegisterBonusModal {
   /** Busca al empleado por área + número; valida que ambos campos estén llenos. */
   protected findEmployee(): void {
     this.validationError.set('');
+    this.lookupError.set('');
     if (!this.lDepartment || !this.lEmployeeNumber) {
       this.validationError.set('Área y número de empleado son obligatorios.');
       return;
     }
     this.bonusApi.getEmployee(this.lDepartment, this.lEmployeeNumber).subscribe({
       next: (emp) => this.employee.set(emp),
-      error: () => {}, // el interceptor ya mostró el motivo (no existe o no está activo)
+      // El backend responde 409 con { code, description } cuando el empleado
+      // no existe o no está activo: se muestra el motivo dentro del modal.
+      error: (err: HttpErrorResponse) =>
+        this.lookupError.set(
+          err.status === 409
+            ? (err.error?.description ?? 'No existe un empleado con el área y número indicados.')
+            : 'El servicio no está disponible. Intenta nuevamente.',
+        ),
     });
   }
 

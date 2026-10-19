@@ -24,6 +24,12 @@
         <button type="button" class="btn btn-primary" (click)="findEmployee()">Buscar empleado</button>
       </div>
 
+      <!-- El error de la búsqueda (área+número obligatorios, empleado no existe o no está
+           activo) se muestra dentro del modal para que sea visible al usuario. -->
+      @if (lookupError(); as err) {
+        <p class="form-error" role="alert">{{ err }}</p>
+      }
+
       <!-- Paso 2: datos del empleado encontrado. -->
       @if (employee(); as emp) {
         <div class="employee-info">
