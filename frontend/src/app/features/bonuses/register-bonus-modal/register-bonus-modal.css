@@ -86,6 +86,23 @@ form label {
   margin: 2px 0;
 }
 .form-error {
-  color: #c0392b;
-  margin: 0;
+  /* Mensaje de error dentro del modal: caja con icono para que destaque
+     sin ser agresiva. */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fdeceb;
+  border: 1px solid #f5c6c0;
+  border-left: 4px solid #c0392b;
+  color: #96281b;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+}
+.form-error::before {
+  content: "⚠";
+  flex: none;
+  font-size: 1rem;
+  line-height: 1;
 }
