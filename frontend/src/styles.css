@@ -27,11 +27,19 @@ body {
 }
 
 .btn {
-  border: 1px solid transparent;
+  /* Altura compatible con los inputs (6px padding + borde = 34px total) para
+     que Buscar/Limpiar queden alineados con los controles del filtro. */
+  padding: 6px 16px;
+  border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 8px 16px;
   font: inherit;
   cursor: pointer;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--bg);
 }
 
 .btn:disabled {

@@ -27,3 +27,12 @@
 .placeholder {
   color: var(--text-muted);
 }
+
+/* Los botones se alinean con los controles (dejando hueco para la etiqueta,
+   que está encima en los demás filtros). */
+.filters-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 1px; /* compensa el borde para quedar a la misma altura */
+}
