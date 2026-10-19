@@ -86,6 +86,7 @@ export class RegisterBonusModal {
       next: (emp) => this.employee.set(emp),
       // El backend responde 409 con { code, description } cuando el empleado
       // no existe o no está activo: se muestra el motivo dentro del modal.
+      // El header hace que el interceptor no lo muestre también en la barra global.
       error: (err: HttpErrorResponse) =>
         this.lookupError.set(
           err.status === 409

@@ -38,10 +38,13 @@ export class BonusApi {
     return this.http.get<PagedResponse<BonusListItem>>(this.baseUrl, { params });
   }
 
-  /** Búsqueda del empleado por área + número (solo activos). */
+  /** Búsqueda del empleado por área + número (solo activos).
+   *  El header 'X-Handle-Error-Inline' indica al interceptor que este error se
+   *  muestra dentro del modal, por lo que no debe salir en la barra global. */
   getEmployee(departmentCode: string, employeeNumber: number): Observable<EmployeeLookup> {
     return this.http.get<EmployeeLookup>(
       `${this.baseUrl}/employee/${departmentCode}/${employeeNumber}`,
+      { headers: { 'X-Handle-Error-Inline': 'true' } },
     );
   }
 
