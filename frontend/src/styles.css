@@ -43,6 +43,27 @@ body {
   background: var(--bg);
 }
 
+/* Botón compacto para las acciones dentro de la tabla (Anular/Pagar/Eliminar):
+   menos padding para que tres botones quepan bien en la celda. */
+.btn-small {
+  padding: 3px 10px;
+  font-size: 13px;
+}
+
+/* Botón de acción destructiva (Eliminar): rojo con texto blanco,
+   con hover propio para no heredar el fondo claro de .btn:hover. */
+.btn-danger {
+  background: #c0392b;
+  border-color: #c0392b;
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #a03024;
+  border-color: #a03024;
+  color: #fff;
+}
+
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;

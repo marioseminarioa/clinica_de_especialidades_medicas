@@ -61,9 +61,12 @@
           <tr [class.row-cancelled]="row.bonusStateCode === '0203'">
             <td>
               @if (canAct(row)) {
-                <button type="button" class="btn btn-small" (click)="cancel(row)">Anular</button>
-                <button type="button" class="btn btn-small" (click)="openPay(row)">Pagar</button>
-                <button type="button" class="btn btn-small btn-danger" (click)="remove(row)">Eliminar</button>
+                <!-- Contenedor flex: separación uniforme entre los tres botones -->
+                <div class="row-actions">
+                  <button type="button" class="btn btn-small" (click)="cancel(row)">Anular</button>
+                  <button type="button" class="btn btn-small" (click)="openPay(row)">Pagar</button>
+                  <button type="button" class="btn btn-small btn-danger" (click)="remove(row)">Eliminar</button>
+                </div>
               } @else {
                 <span class="muted">—</span>
               }

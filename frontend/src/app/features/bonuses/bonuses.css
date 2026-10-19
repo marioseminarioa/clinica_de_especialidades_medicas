@@ -36,3 +36,12 @@
   gap: 8px;
   margin-bottom: 1px; /* compensa el borde para quedar a la misma altura */
 }
+
+/* Acciones de la fila (Anular / Pagar / Eliminar):
+   flex con separación fija para que no queden pegados entre sí. */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
