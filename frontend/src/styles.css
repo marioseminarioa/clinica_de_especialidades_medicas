@@ -1,6 +1,7 @@
 /* Estilos globales mínimos. Puedes reemplazarlos o usar la librería de UI que prefieras. */
 :root {
   --primary: #1f5fa8;
+  --primary-dark: #17477e; /* tono más oscuro de --primary para el hover */
   --text: #1f2933;
   --text-muted: #616e7c;
   --border: #d9e2ec;
@@ -49,6 +50,14 @@ body {
 
 .btn-primary {
   background: var(--primary);
+  color: #fff;
+}
+
+/* En hover los botones azules mantienen el fondo azul (más oscuro) con texto
+   blanco: la regla genérica .btn:hover les pone fondo claro y el texto blanco
+   deja de verse. */
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
   color: #fff;
 }
 
